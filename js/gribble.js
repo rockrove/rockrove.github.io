@@ -1,4 +1,4 @@
-const BACKEND_URL = "http://82.21.151.228:5000"; // or public IP after port forwarding
+const BACKEND_URL = "http://82.21.151.228:24677"; // or public IP after port forwarding
 
 // Elements
 const inputBox = document.getElementById("user-input");
