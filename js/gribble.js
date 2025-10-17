@@ -49,4 +49,4 @@ inputBox.addEventListener("keypress", (e) => {
 
 // Check status every 5 seconds
 checkStatus();
-setInterval(checkStatus, 5000);
+setInterval(checkStatus, 24677);
