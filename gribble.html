@@ -134,42 +134,55 @@
   <script src="js/custom.js"></script>
 
   <script>
-    const BACKEND_URL = "https://unremarked-jamison-appallingly.ngrok-free.dev"; // Update this with your local IP or hosted backend
+  const BACKEND_URL = "https://unremarked-jamison-appallingly.ngrok-free.dev"; // ngrok URL
 
-    const statusEl = document.getElementById("status");
-    const spinner = document.getElementById("spinner");
+  const statusEl = document.getElementById("status");
+  const spinner = document.getElementById("spinner");
+  const inputBox = document.getElementById("input");
+  const replyEl = document.getElementById("reply");
+  const audioEl = document.getElementById("audio");
 
-    async function checkStatus() {
-      try {
-        const res = await fetch(`${BACKEND_URL}/status`);
-        const data = await res.json();
-        statusEl.innerText = data.online ? "Online ✅" : "Offline ❌";
-      } catch (e) {
-        statusEl.innerText = "Offline ❌";
-      }
+  // Check if Gribble is online
+  async function checkStatus() {
+    try {
+      const res = await fetch(`${BACKEND_URL}/status`);
+      const data = await res.json();
+      statusEl.innerText = data.online ? "Online ✅" : "Offline ❌";
+    } catch {
+      statusEl.innerText = "Offline ❌";
     }
+  }
 
-    async function send() {
-      const msg = document.getElementById('input').value;
-      if (!msg) return;
-      spinner.style.display = "inline-block";
+  // Send message to Gribble
+  async function send() {
+    const msg = inputBox.value.trim();
+    if (!msg) return;
+
+    spinner.style.display = "inline-block";
+
+    try {
       const res = await fetch(`${BACKEND_URL}/ask`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: msg })
       });
       const data = await res.json();
-      spinner.style.display = "none";
-      document.getElementById("reply").innerText = "Gribble: " + data.reply;
-      const audio = document.getElementById("audio");
-      audio.src = "data:audio/wav;base64," + data.audio;
-      audio.play();
-    }
 
-    setInterval(checkStatus, 24677);
-    checkStatus();
+      replyEl.innerText = "Gribble: " + data.reply;
+      audioEl.src = "data:audio/wav;base64," + data.audio;
+      audioEl.play();
+    } catch {
+      replyEl.innerText = "Gribble: ❌ Could not reach server";
+    } finally {
+      spinner.style.display = "none";
+    }
+  }
+
+  // Initial check and repeat every 5 seconds
+  checkStatus();
+  setInterval(checkStatus, 5000);
   </script>
-  <script src="js/gribble.js"></script>
+
 </body>
 
 </html>
