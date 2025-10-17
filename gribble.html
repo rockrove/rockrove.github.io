@@ -144,12 +144,18 @@
 
   // Check if Gribble is online
   async function checkStatus() {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000); // 5-second timeout
+
     try {
-      const res = await fetch(`${BACKEND_URL}/status`);
+      const res = await fetch(`${BACKEND_URL}/status`, { signal: controller.signal });
+      clearTimeout(timeout);
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       statusEl.innerText = data.online ? "Online ✅" : "Offline ❌";
     } catch (e) {
-      console.error("Status check error:", e); // <-- will show browser errors
+      console.error("Status check error:", e);
       statusEl.innerText = "Offline ❌";
     }
   }
