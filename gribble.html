@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>Gribble Chat - Rocket Callen</title>
+
+  <link rel="shortcut icon" href="images/plain-rocket-md.png" type="image/x-icon">
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" />
+  <link href="css/font-awesome.min.css" rel="stylesheet" />
+  <link href="css/style.css" rel="stylesheet" />
+  <link href="css/responsive.css" rel="stylesheet" />
+  <style>
+    #spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-left: 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+
+<body class="sub_page">
+  <div class="hero_area">
+    <div class="hero_bg_box">
+      <img src="images/G-Bgrad.jpg" alt="">
+    </div>
+
+    <!-- header -->
+    <header class="header_section">
+      <div class="header_bottom">
+        <div class="container-fluid">
+          <nav class="navbar navbar-expand-lg custom_nav-container ">
+            <a class="navbar-brand " href="index.html"> Home </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+              aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class=""> </span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav  ">
+                <li class="nav-item"><a class="nav-link" href="about.html"> About</a></li>
+                <li class="nav-item"><a class="nav-link" href="service.html">Projects</a></li>
+                <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+              </ul>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <!-- end header -->
+  </div>
+
+  <!-- Gribble Chat Section -->
+  <section class="about_section layout_padding">
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Left Column: Chat -->
+        <div class="col-md-5 offset-md-1">
+          <div class="detail-box pr-md-2">
+            <div class="heading_container">
+              <h2>Gribble Chat</h2>
+            </div>
+            <p class="detail_p_mt">
+              Talk to Gribble, the timid basement goblin who loves coffee grounds. Type your message below and listen to Gribble's voice!
+            </p>
+            <p>Status: <span id="status">Checking...</span> <span id="spinner"></span></p>
+            <textarea id="input" rows="3" class="form-control mb-2"
+              placeholder="Say something to Gribble..."></textarea>
+            <button class="btn btn-primary mb-3" onclick="send()">Speak</button>
+            <p id="reply" style="font-style:italic;"></p>
+            <audio id="audio" controls></audio>
+          </div>
+        </div>
+
+        <!-- Right Column: Image -->
+        <div class="col-md-6 px-0">
+          <div class="img-box">
+            <img src="images/gribble.png" class="box_img" alt="Gribble Image">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Gribble Chat Section Ends -->
+
+  <!-- info section -->
+  <section class="info_section ">
+    <div class="container">
+      <div class="info_top">
+        <div class="row">
+          <div class="col-md-3 "><a class="navbar-brand" href="index.html">Rocket Callen</a></div>
+          <div class="col-md-5 ">
+            <div class="info_contact">
+              <a href=""><i class="fa fa-envelope" aria-hidden="true"></i><span>Rocketsrove@gmail.com</span></a>
+            </div>
+          </div>
+          <div class="col-md-4 ">
+            <div class="social_box">
+              <a href=""><i class="fa fa-facebook" aria-hidden="true"></i></a>
+              <a href=""><i class="fa fa-twitter" aria-hidden="true"></i></a>
+              <a href=""><i class="fa fa-linkedin" aria-hidden="true"></i></a>
+              <a href=""><i class="fa fa-instagram" aria-hidden="true"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- end info_section -->
+
+  <footer class="footer_section">
+    <div class="container">
+      <p>&copy; <span id="displayYear"></span> Rocket Callen</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/jquery-3.4.1.min.js"></script>
+  <script src="js/bootstrap.js"></script>
+  <script src="js/custom.js"></script>
+
+  <script>
+    const BACKEND_URL = "http://82.21.151.228:5000"; // Update this with your local IP or hosted backend
+
+    const statusEl = document.getElementById("status");
+    const spinner = document.getElementById("spinner");
+
+    async function checkStatus() {
+      try {
+        const res = await fetch(`${BACKEND_URL}/status`);
+        const data = await res.json();
+        statusEl.innerText = data.online ? "Online ✅" : "Offline ❌";
+      } catch (e) {
+        statusEl.innerText = "Offline ❌";
+      }
+    }
+
+    async function send() {
+      const msg = document.getElementById('input').value;
+      if (!msg) return;
+      spinner.style.display = "inline-block";
+      const res = await fetch(`${BACKEND_URL}/ask`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: msg })
+      });
+      const data = await res.json();
+      spinner.style.display = "none";
+      document.getElementById("reply").innerText = "Gribble: " + data.reply;
+      const audio = document.getElementById("audio");
+      audio.src = "data:audio/wav;base64," + data.audio;
+      audio.play();
+    }
+
+    setInterval(checkStatus, 5000);
+    checkStatus();
+  </script>
+</body>
+
+</html>
