@@ -148,7 +148,8 @@
       const res = await fetch(`${BACKEND_URL}/status`);
       const data = await res.json();
       statusEl.innerText = data.online ? "Online ✅" : "Offline ❌";
-    } catch {
+    } catch (e) {
+      console.error("Status check error:", e); // <-- will show browser errors
       statusEl.innerText = "Offline ❌";
     }
   }
