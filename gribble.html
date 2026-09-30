@@ -148,7 +148,7 @@
     const timeout = setTimeout(() => controller.abort(), 5000); // 5-second timeout
 
     try {
-      const res = await fetch(`${BACKEND_URL}/status`, { signal: controller.signal });
+      const res = await fetch(`${BACKEND_URL}/status`, { signal: controller.signal,headers: {  "ngrok-skip-browser-warning": "69420"}});
       clearTimeout(timeout);
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -169,9 +169,12 @@
 
     try {
       const res = await fetch(`${BACKEND_URL}/ask`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: msg })
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "69420"
+      },
+      body: JSON.stringify({ prompt: msg })
       });
       const data = await res.json();
 
