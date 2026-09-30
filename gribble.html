@@ -170,11 +170,13 @@
     spinner.style.display = "inline-block";
 
     try {
+      // Using text/plain stops the browser from sending OPTIONS /ask!
       const res = await fetch(`${BACKEND_URL}/ask?ngrok-skip-browser-warning=1`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "text/plain" },
         body: JSON.stringify({ prompt: msg })
       });
+      
       const data = await res.json();
 
       replyEl.innerText = "Gribble: " + data.reply;
