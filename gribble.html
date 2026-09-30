@@ -133,7 +133,7 @@
   <script src="js/bootstrap.js"></script>
   <script src="js/custom.js"></script>
 
-  <script>
+<script>
   const BACKEND_URL = "https://unremarked-jamison-appallingly.ngrok-free.dev";
 
   const statusEl = document.getElementById("status");
@@ -142,13 +142,12 @@
   const replyEl = document.getElementById("reply");
   const audioEl = document.getElementById("audio");
 
-  // Check if Gribble is online (Simple GET, no custom headers -> NO OPTIONS preflight!)
+  // Check if Gribble is online
   async function checkStatus() {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
 
     try {
-      // Query param bypasses ngrok warning without triggering CORS preflight
       const res = await fetch(`${BACKEND_URL}/status?ngrok-skip-browser-warning=1`, {
         signal: controller.signal
       });
@@ -171,10 +170,9 @@
     spinner.style.display = "inline-block";
 
     try {
-      // Using text/plain prevents the browser from triggering an OPTIONS preflight!
       const res = await fetch(`${BACKEND_URL}/ask?ngrok-skip-browser-warning=1`, {
         method: "POST",
-        headers: { "Content-Type": "text/plain" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: msg })
       });
       const data = await res.json();
@@ -192,14 +190,9 @@
     }
   }
 
+  // Initial check and repeat every 5 seconds
   checkStatus();
   setInterval(checkStatus, 5000);
-
-  // Send message when Enter key is pressed
-  inputBox.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") send();
-  });
-
 </script>
 
 </body>
