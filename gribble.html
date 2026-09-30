@@ -134,7 +134,7 @@
   <script src="js/custom.js"></script>
 
   <script>
-  const BACKEND_URL = "https://unremarked-jamison-appallingly.ngrok-free.dev"; // ngrok URL
+  const BACKEND_URL = "https://unremarked-jamison-appallingly.ngrok-free.dev";
 
   const statusEl = document.getElementById("status");
   const spinner = document.getElementById("spinner");
@@ -142,13 +142,16 @@
   const replyEl = document.getElementById("reply");
   const audioEl = document.getElementById("audio");
 
-  // Check if Gribble is online
+  // Check if Gribble is online (Simple GET, no custom headers -> NO OPTIONS preflight!)
   async function checkStatus() {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000); // 5-second timeout
+    const timeout = setTimeout(() => controller.abort(), 5000);
 
     try {
-      const res = await fetch(`${BACKEND_URL}/status`, { signal: controller.signal,headers: {  "ngrok-skip-browser-warning": "69420"}});
+      // Query param bypasses ngrok warning without triggering CORS preflight
+      const res = await fetch(`${BACKEND_URL}/status?ngrok-skip-browser-warning=1`, {
+        signal: controller.signal
+      });
       clearTimeout(timeout);
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -168,30 +171,36 @@
     spinner.style.display = "inline-block";
 
     try {
-      const res = await fetch(`${BACKEND_URL}/ask`, {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "ngrok-skip-browser-warning": "69420"
-      },
-      body: JSON.stringify({ prompt: msg })
+      // Using text/plain prevents the browser from triggering an OPTIONS preflight!
+      const res = await fetch(`${BACKEND_URL}/ask?ngrok-skip-browser-warning=1`, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify({ prompt: msg })
       });
       const data = await res.json();
 
       replyEl.innerText = "Gribble: " + data.reply;
-      audioEl.src = "data:audio/wav;base64," + data.audio;
-      audioEl.play();
-    } catch {
+      if (data.audio) {
+        audioEl.src = "data:audio/wav;base64," + data.audio;
+        audioEl.play();
+      }
+    } catch (err) {
+      console.error("Send error:", err);
       replyEl.innerText = "Gribble: ❌ Could not reach server";
     } finally {
       spinner.style.display = "none";
     }
   }
 
-  // Initial check and repeat every 5 seconds
   checkStatus();
   setInterval(checkStatus, 5000);
-  </script>
+
+  // Send message when Enter key is pressed
+  inputBox.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") send();
+  });
+
+</script>
 
 </body>
 
