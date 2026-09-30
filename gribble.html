@@ -81,6 +81,11 @@
             <textarea id="input" rows="3" class="form-control mb-2"
               placeholder="Say something to Gribble..."></textarea>
             <button class="btn btn-primary mb-3" onclick="send()">Speak</button>
+            <div class="mb-2">
+              <button class="btn btn-sm btn-dark" onclick="sendAction('Shines a bright flashlight directly into Gribble’s eyes')">Shine Flashlight</button>
+              <button class="btn btn-sm btn-success" onclick="sendAction('Drops a handful of wet, warm coffee grounds on the floor')"> Give Coffee Grounds</button>
+              <button class="btn btn-sm btn-warning" onclick="sendAction('Throws a dead spider at him')">Throw Bug</button>
+            </div>
             <p id="reply" style="font-style:italic;"></p>
             <audio id="audio" controls></audio>
           </div>
@@ -160,6 +165,11 @@
       console.error("Status check error:", e);
       statusEl.innerText = "Offline ❌";
     }
+  }
+  function sendAction(actionText) {
+    // Puts the action in the box and instantly hits send!
+    inputBox.value = `*${actionText}*`;
+    send();
   }
 
   // Send message to Gribble
